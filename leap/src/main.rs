@@ -1,11 +1,20 @@
 use std::str::FromStr;
 
 fn main() {
-    let year_str = std::env::args()
-        .skip(1)
-        .next()
-        .expect("please specify a year.");
-    let year = u64::from_str(&year_str).expect("error parsing argument");
+    let year_str = match std::env::args().nth(1) {
+        Some(year_str) => year_str,
+        None => {
+            eprintln!("please specify a year.");
+            std::process::exit(1)
+        }
+    };
+    let year = match u64::from_str(&year_str) {
+        Ok(year) => year,
+        Err(err) => {
+            eprintln!("failed to parse '{}' as a number : {}", year_str, err);
+            std::process::exit(1)
+        }
+    };
 
     if is_leap_year(year) {
         println!("The {} is a leap year.", year);
@@ -15,15 +24,7 @@ fn main() {
 }
 
 fn is_leap_year(year: u64) -> bool {
-    if year % 400 == 0 {
-        true
-    } else if year % 100 == 0 {
-        false
-    } else if year % 4 == 0 {
-        true
-    } else {
-        false
-    }
+    year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)
 }
 
 #[test]
