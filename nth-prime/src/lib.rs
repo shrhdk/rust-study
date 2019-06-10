@@ -1,17 +1,17 @@
 fn is_prime(num: u64) -> bool {
     if num == 0 || num == 1 {
-        return false;
+        false
     } else if num == 2 {
-        return true;
+        true
     } else if num % 2 == 0 {
-        return false;
+        false
     } else {
         for x in (3..num).step_by(2) {
             if num % x == 0 {
                 return false;
             }
         }
-        return true;
+        true
     }
 }
 
@@ -46,7 +46,7 @@ pub fn nth_prime(n: u64) -> u64 {
         }
     }
 
-    panic!("this is unreachable line.")
+    panic!("this line is unreachable.")
 }
 
 #[test]
