@@ -1,0 +1,7 @@
+[package]
+name = "minesweeper"
+version = "0.1.0"
+authors = ["Hideki SHIRO <hideki@shiro.be>"]
+edition = "2018"
+
+[dependencies]
