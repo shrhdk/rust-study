@@ -1,0 +1,7 @@
+[package]
+name = "simple-linked-list"
+version = "0.1.0"
+authors = ["Hideki Shiro <hideki.shiro@jp.ricoh.com>"]
+edition = "2018"
+
+[dependencies]
