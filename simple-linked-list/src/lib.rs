@@ -80,20 +80,14 @@ impl<T> SimpleLinkedList<T> {
 }
 
 impl<T: Clone> SimpleLinkedList<T> {
-    // TODO: Correct inefficiency implementation
     pub fn rev(&self) -> SimpleLinkedList<T> {
-        let mut vec = Vec::new();
+        let mut reversed = SimpleLinkedList::new();
         let mut opt_node = &self.head;
         while let Some(ref node) = opt_node {
-            vec.push(node.data.clone());
+            reversed.push_front(node.data.clone());
             opt_node = &node.next;
         }
-        vec.reverse();
-        let mut list = SimpleLinkedList::new();
-        for data in vec {
-            list.push(data);
-        }
-        list
+        reversed
     }
 }
 
