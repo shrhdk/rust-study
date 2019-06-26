@@ -46,6 +46,40 @@ fn test_peek_returns_head_element() {
 }
 
 #[test]
+fn test_push_front_increments_length() {
+    let mut list: SimpleLinkedList<u32> = SimpleLinkedList::new();
+    list.push_front(1);
+    assert_eq!(list.len(), 1, "list's length must be 1");
+    list.push_front(2);
+    assert_eq!(list.len(), 2, "list's length must be 2");
+}
+
+#[test]
+fn test_pop_front_decrements_length() {
+    let mut list: SimpleLinkedList<u32> = SimpleLinkedList::new();
+    list.push_front(1);
+    list.push_front(2);
+    list.pop_front();
+    assert_eq!(list.len(), 1, "list's length must be 1");
+    list.pop_front();
+    assert_eq!(list.len(), 0, "list's length must be 0");
+}
+
+#[test]
+fn test_pop_front_returns_last_added_element() {
+    let mut list: SimpleLinkedList<u32> = SimpleLinkedList::new();
+    list.push_front(1);
+    list.push_front(2);
+    assert_eq!(list.pop_front(), Some(2), "Element must be 2");
+    assert_eq!(list.pop_front(), Some(1), "Element must be 1");
+    assert_eq!(
+        list.pop_front(),
+        None,
+        "No element should be contained in list"
+    );
+}
+
+#[test]
 fn test_from_slice() {
     let array = ["1", "2", "3", "4"];
     let mut list = SimpleLinkedList::from(array.as_ref());

@@ -59,6 +59,24 @@ impl<T> SimpleLinkedList<T> {
         }
         Some(&node.data)
     }
+
+    pub fn push_front(&mut self, _element: T) {
+        let new_node = Node {
+            data: _element,
+            next: std::mem::replace(&mut self.head, None),
+        };
+        self.head = Some(Box::new(new_node));
+    }
+
+    pub fn pop_front(&mut self) -> Option<T> {
+        if self.head.is_none() {
+            return None;
+        }
+        let mut old_head = std::mem::replace(&mut self.head, None).unwrap();
+        let new_head = std::mem::replace(&mut old_head.next, None);
+        self.head = new_head;
+        Some(old_head.data)
+    }
 }
 
 impl<T: Clone> SimpleLinkedList<T> {
