@@ -16,12 +16,11 @@ impl<'a> CodonsInfo<'a> {
     pub fn of_rna(&self, rna: &str) -> Option<Vec<&'a str>> {
         let vec = rna.as_bytes()
             .chunks(3)
-            .map(str::from_utf8)
-            .map(|codon| codon.unwrap())
-            .map(|codon| self.name_for(codon))
-            .take_while(|codon| !codon.is_none())
-            .map(|codon| codon.unwrap())
-            .take_while(|codon| *codon != "stop codon")
+            .map(|bytes| str::from_utf8(bytes).unwrap())
+            .map(|codon_str| self.name_for(codon_str))
+            .take_while(Option::is_some)
+            .map(Option::unwrap)
+            .take_while(|protein| protein != &"stop codon")
             .collect::<Vec<&'a str>>();
         if vec.len() < 1 {
             None
