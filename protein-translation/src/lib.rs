@@ -22,7 +22,7 @@ impl<'a> CodonsInfo<'a> {
             .map(Option::unwrap)
             .take_while(|protein| protein != &"stop codon")
             .collect::<Vec<&'a str>>();
-        if vec.len() < 1 {
+        if vec.is_empty() {
             None
         } else {
             Some(vec)
