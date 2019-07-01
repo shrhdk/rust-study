@@ -34,9 +34,7 @@ impl<T> SimpleLinkedList<T> {
     }
 
     pub fn pop(&mut self) -> Option<T> {
-        if self.head.is_none() {
-            return None;
-        }
+        self.head.as_ref()?;
 
         let mut opt_node = &mut self.head;
         loop {
@@ -60,18 +58,17 @@ impl<T> SimpleLinkedList<T> {
         Some(&node.data)
     }
 
-    pub fn push_front(&mut self, _element: T) {
+    pub fn push_front(&mut self, data: T) {
         let new_node = Node {
-            data: _element,
+            data,
             next: std::mem::replace(&mut self.head, None),
         };
         self.head = Some(Box::new(new_node));
     }
 
     pub fn pop_front(&mut self) -> Option<T> {
-        if self.head.is_none() {
-            return None;
-        }
+        self.head.as_ref()?;
+
         let mut old_head = std::mem::replace(&mut self.head, None).unwrap();
         let new_head = std::mem::replace(&mut old_head.next, None);
         self.head = new_head;
