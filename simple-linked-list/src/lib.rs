@@ -39,7 +39,7 @@ impl<T> SimpleLinkedList<T> {
         let mut opt_node = &mut self.head;
         loop {
             if opt_node.as_ref().unwrap().next.is_none() {
-                let tail = std::mem::replace(&mut *opt_node, None);
+                let tail = opt_node.take();
                 return Some(tail.unwrap().data);
             } else {
                 opt_node = &mut opt_node.as_mut().unwrap().next;
@@ -61,7 +61,7 @@ impl<T> SimpleLinkedList<T> {
     pub fn push_front(&mut self, data: T) {
         let new_node = Node {
             data,
-            next: std::mem::replace(&mut self.head, None),
+            next: self.head.take(),
         };
         self.head = Some(Box::new(new_node));
     }
@@ -69,8 +69,8 @@ impl<T> SimpleLinkedList<T> {
     pub fn pop_front(&mut self) -> Option<T> {
         self.head.as_ref()?;
 
-        let mut old_head = std::mem::replace(&mut self.head, None).unwrap();
-        let new_head = std::mem::replace(&mut old_head.next, None);
+        let mut old_head = self.head.take().unwrap();
+        let new_head = old_head.next.take();
         self.head = new_head;
         Some(old_head.data)
     }
