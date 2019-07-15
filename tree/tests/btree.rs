@@ -10,6 +10,29 @@ fn test_insert_increments_length() {
 }
 
 #[test]
+fn test_insert_duplicated_value_keeps_length() {
+    let mut set = BTreeSet::<i32>::new();
+    set.insert(1);
+    assert_eq!(set.len(), 1, "set's length must be 1");
+    set.insert(1);
+    assert_eq!(set.len(), 1, "set's length must be 1");
+}
+
+#[test]
+fn test_insert_unique_value_returns_true() {
+    let mut set = BTreeSet::<i32>::new();
+    assert_eq!(set.insert(1), true);
+    assert_eq!(set.insert(2), true);
+}
+
+#[test]
+fn test_insert_duplicated_value_returns_false() {
+    let mut set = BTreeSet::<i32>::new();
+    set.insert(1);
+    assert_eq!(set.insert(1), false);
+}
+
+#[test]
 fn test_is_empty() {
     let mut set = BTreeSet::<i32>::new();
     assert_eq!(set.is_empty(), true);
