@@ -1,8 +1,8 @@
-use tree::BTreeSet;
+use tree::RBTreeSet;
 
 #[test]
 fn test_insert_increments_length() {
-    let mut set = BTreeSet::<i32>::new();
+    let mut set = RBTreeSet::<i32>::new();
     set.insert(1);
     assert_eq!(set.len(), 1, "set's length must be 1");
     set.insert(2);
@@ -11,7 +11,7 @@ fn test_insert_increments_length() {
 
 #[test]
 fn test_is_empty() {
-    let mut set = BTreeSet::<i32>::new();
+    let mut set = RBTreeSet::<i32>::new();
     assert_eq!(set.is_empty(), true);
     set.insert(1);
     assert_eq!(set.is_empty(), false);
@@ -19,7 +19,7 @@ fn test_is_empty() {
 
 #[test]
 fn test_clear() {
-    let mut set = BTreeSet::<i32>::new();
+    let mut set = RBTreeSet::<i32>::new();
 
     set.insert(1);
     set.insert(2);
@@ -34,7 +34,7 @@ fn test_clear() {
 
 #[test]
 fn test_contains() {
-    let mut set = BTreeSet::<i32>::new();
+    let mut set = RBTreeSet::<i32>::new();
 
     // Insert to root
     // 10
@@ -130,7 +130,7 @@ fn test_contains() {
 
 #[test]
 fn test_get() {
-    let mut set = BTreeSet::<i32>::new();
+    let mut set = RBTreeSet::<i32>::new();
 
     // Insert to root
     // 10
