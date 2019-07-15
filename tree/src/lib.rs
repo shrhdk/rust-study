@@ -1,7 +1,6 @@
 use std::cmp::Ordering::*;
 
 use Color::*;
-use Direction::*;
 
 // BTreeSet
 
@@ -17,8 +16,8 @@ struct BTreeNode<T> {
 }
 
 impl<T: Ord> BTreeSet<T> {
-    pub fn new() -> BTreeSet<T> {
-        BTreeSet { root: None, len: 0 }
+    pub fn new() -> Self {
+        Self { root: None, len: 0 }
     }
 
     pub fn len(&self) -> usize {
@@ -188,8 +187,8 @@ fn check_for_debug<T>(set: &RBTreeSet<T>) {
 }
 
 impl<T: Ord> RBTreeSet<T> {
-    pub fn new() -> RBTreeSet<T> {
-        RBTreeSet { root: None, len: 0 }
+    pub fn new() -> Self {
+        Self { root: None, len: 0 }
     }
 
     pub fn len(&self) -> usize {

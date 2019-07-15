@@ -9,7 +9,7 @@ struct Node<T> {
 
 impl<T> SimpleLinkedList<T> {
     pub fn new() -> Self {
-        SimpleLinkedList { head: None }
+        Self { head: None }
     }
 
     pub fn len(&self) -> usize {
@@ -77,8 +77,8 @@ impl<T> SimpleLinkedList<T> {
 }
 
 impl<T: Clone> SimpleLinkedList<T> {
-    pub fn rev(&self) -> SimpleLinkedList<T> {
-        let mut reversed = SimpleLinkedList::new();
+    pub fn rev(&self) -> Self {
+        let mut reversed = Self::new();
         let mut opt_node = &self.head;
         while let Some(ref node) = opt_node {
             reversed.push_front(node.data.clone());
@@ -90,7 +90,7 @@ impl<T: Clone> SimpleLinkedList<T> {
 
 impl<'a, T: Clone> From<&'a [T]> for SimpleLinkedList<T> {
     fn from(_item: &[T]) -> Self {
-        let mut list = SimpleLinkedList::new();
+        let mut list = Self::new();
         for data in _item {
             list.push(data.clone());
         }
