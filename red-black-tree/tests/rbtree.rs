@@ -244,3 +244,16 @@ fn test_get() {
         "set's contains 20 after insertion."
     );
 }
+
+#[test]
+fn test_sequential_numbers() {
+    let mut set = RBTreeSet::<u32>::new();
+    for N in 0..=10 {
+        for n in 0..=N {
+            set.insert(n);
+        }
+        println!(" ");
+        println!("insert 0 to {}", N);
+        set.pretty_print();
+    }
+}

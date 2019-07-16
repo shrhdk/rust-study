@@ -53,7 +53,10 @@ fn insert<T: Ord>(
         Some(node) => match new_node.value.cmp(&node.value) {
             Less => insert(&mut node.left, Some(Left), new_node),
             Greater => insert(&mut node.right, Some(Right), new_node),
-            Equal => return (dir, None),
+            Equal => {
+                let dir = if node.color == Black { None } else { dir };
+                return (dir, None);
+            }
         },
         None => {
             std::mem::replace(opt_node, Some(Box::new(new_node)));
@@ -72,7 +75,10 @@ fn insert<T: Ord>(
             rotate_right(&mut opt_node.as_mut().unwrap().right);
             rotate_left(opt_node);
         }
-        _ => return (dir, pattern.0),
+        _ => {
+            let dir = if opt_node.as_ref().unwrap().color == Black { None } else { dir };
+            return (dir, pattern.0);
+        }
     }
 
     opt_node.as_mut().unwrap().color = Red;
