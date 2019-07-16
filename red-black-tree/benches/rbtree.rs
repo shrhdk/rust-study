@@ -6,8 +6,7 @@ use test::Bencher;
 
 use rand::seq::SliceRandom;
 
-use tree::BTreeSet;
-use tree::RBTreeSet;
+use red_black_tree::RBTreeSet;
 
 const N: usize = 1000;
 
@@ -16,32 +15,6 @@ fn random_numbers(size: usize) -> Vec<usize> {
     let mut rng = rand::thread_rng();
     v.shuffle(&mut rng);
     v
-}
-
-#[bench]
-fn bench_btree_with_random_numbers(b: &mut Bencher) {
-    b.iter(|| {
-        let mut set = BTreeSet::new();
-        for n in random_numbers(N) {
-            set.insert(n);
-        }
-        for n in 0..N {
-            assert!(set.contains(&n));
-        }
-    });
-}
-
-#[bench]
-fn bench_btree_with_sequential_numbers(b: &mut Bencher) {
-    b.iter(|| {
-        let mut set = BTreeSet::new();
-        for n in 0..N {
-            set.insert(n);
-        }
-        for n in 0..N {
-            assert!(set.contains(&n));
-        }
-    });
 }
 
 #[bench]
