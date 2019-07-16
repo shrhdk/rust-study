@@ -82,22 +82,6 @@ fn insert<T: Ord>(
     (dir, None)
 }
 
-fn check_for_debug<T>(set: &RBTreeSet<T>) {
-    fn check<T>(opt_node: &Option<Box<RBTreeNode<T>>>, parent_color: Option<Color>) {
-        if let Some(node) = opt_node {
-            match (parent_color, node.color) {
-                (None, Red) => panic!("root is red."),
-                (Some(Red), Red) => panic!("parent and child are red."),
-                _ => {
-                    check(&node.left, Some(node.color));
-                    check(&node.right, Some(node.color));
-                }
-            }
-        }
-    }
-    check(&set.root, None);
-}
-
 impl<T: Ord> RBTreeSet<T> {
     pub fn new() -> Self {
         Self { root: None, len: 0 }
