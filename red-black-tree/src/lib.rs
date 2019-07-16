@@ -50,13 +50,15 @@ fn insert<T: Ord>(
 ) -> (Option<Direction>, Option<Direction>) {
     use Direction::*;
 
+    // insert value recursively and get inserted direction of RED child and RED grandchild.
+    // inserted direction is None, if the child or the grand child is BLACK.
     let pattern = match opt_node {
         Some(node) => match new_node.value.cmp(&node.value) {
             Less => insert(&mut node.left, Some(Left), new_node),
             Greater => insert(&mut node.right, Some(Right), new_node),
-            Equal => {
-                let dir = if node.color == Black { None } else { dir };
-                return (dir, None);
+            Equal => match node.color {
+                Red => return (dir, None),
+                Black => return (None, None),
             }
         },
         None => {
@@ -76,13 +78,9 @@ fn insert<T: Ord>(
             rotate_right(&mut opt_node.as_mut().unwrap().right);
             rotate_left(opt_node);
         }
-        _ => {
-            let dir = if opt_node.as_ref().unwrap().color == Black {
-                None
-            } else {
-                dir
-            };
-            return (dir, pattern.0);
+        _ => match opt_node.as_ref().unwrap().color {
+            Red => return (dir, pattern.0),
+            Black => return (None, pattern.0),
         }
     }
 
