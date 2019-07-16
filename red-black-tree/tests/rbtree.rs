@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+
 use red_black_tree::RBTreeSet;
 
 #[test]
@@ -147,8 +149,6 @@ fn test_contains() {
         true,
         "set's contains 20 after insertion."
     );
-
-    set.pretty_print();
 }
 
 #[test]
@@ -246,14 +246,30 @@ fn test_get() {
 }
 
 #[test]
-fn test_sequential_numbers() {
+fn test_insert_sequential_numbers() {
     let mut set = RBTreeSet::<u32>::new();
-    for N in 0..=10 {
-        for n in 0..=N {
+    for max_n in 1..=10 {
+        for n in 1..=max_n {
             set.insert(n);
         }
         println!(" ");
-        println!("insert 0 to {}", N);
+        println!("insert 0 to {}", max_n);
         set.pretty_print();
     }
+}
+
+#[test]
+fn test_insert_random_numbers() {
+    // gen random numbers
+    let mut vec: Vec<u32> = (1..=50).collect();
+    let mut rng = rand::thread_rng();
+    vec.shuffle(&mut rng);
+
+    //
+    let mut set = RBTreeSet::<u32>::new();
+    for v in vec {
+        set.insert(v);
+    }
+
+    set.pretty_print();
 }

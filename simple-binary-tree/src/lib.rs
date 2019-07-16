@@ -1,4 +1,5 @@
 use std::cmp::Ordering::*;
+use std::fmt::Display;
 
 pub struct BTreeSet<T> {
     root: Option<Box<BTreeNode<T>>>,
@@ -65,19 +66,19 @@ impl<T: Ord> BTreeSet<T> {
     }
 }
 
-impl<T: ToString> BTreeSet<T> {
+impl<T: Display> BTreeSet<T> {
     pub fn pretty_print(&self) {
-        fn print_node<T: ToString>(
+        fn print_node<T: Display>(
             opt_node: &Option<Box<BTreeNode<T>>>,
             prefix: String,
             last: bool,
         ) {
             let prefix_current = if last { "`- " } else { "|- " };
-            let node_str = match opt_node {
-                Some(node) => node.value.to_string(),
-                None => "".to_string(),
-            };
-            println!("{}{}{}", prefix, prefix_current, node_str);
+            print!("{}{}", prefix, prefix_current);
+            if let Some(node) = opt_node {
+                print!("{}", node.value);
+            }
+            println!();
             let prefix = prefix + if last { "   " } else { "|  " };
             if let Some(node) = opt_node {
                 if node.left.is_some() || node.right.is_some() {

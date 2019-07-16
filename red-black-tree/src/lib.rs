@@ -1,4 +1,5 @@
 use std::cmp::Ordering::*;
+use std::fmt::Display;
 
 use Color::*;
 
@@ -76,7 +77,11 @@ fn insert<T: Ord>(
             rotate_left(opt_node);
         }
         _ => {
-            let dir = if opt_node.as_ref().unwrap().color == Black { None } else { dir };
+            let dir = if opt_node.as_ref().unwrap().color == Black {
+                None
+            } else {
+                dir
+            };
             return (dir, pattern.0);
         }
     }
@@ -143,25 +148,22 @@ impl<T: Ord> RBTreeSet<T> {
     }
 }
 
-impl<T: ToString> RBTreeSet<T> {
+impl<T: Display> RBTreeSet<T> {
     pub fn pretty_print(&self) {
-        fn print_node<T: ToString>(
+        fn print_node<T: Display>(
             opt_node: &Option<Box<RBTreeNode<T>>>,
             prefix: String,
             last: bool,
         ) {
             let prefix_current = if last { "`- " } else { "|- " };
-            let node_str = match opt_node {
-                Some(node) => {
-                    let color_str = match node.color {
-                        Red => "R_".to_string(),
-                        Black => "B_".to_string(),
-                    };
-                    color_str + &node.value.to_string()
+            print!("{}{}", prefix, prefix_current);
+            if let Some(node) = opt_node {
+                match node.color {
+                    Red => print!("R_{}", node.value),
+                    Black => print!("B_{}", node.value),
                 }
-                None => "".to_string(),
-            };
-            println!("{}{}{}", prefix, prefix_current, node_str);
+            }
+            println!();
             let prefix = prefix + if last { "   " } else { "|  " };
             if let Some(node) = opt_node {
                 if node.left.is_some() || node.right.is_some() {

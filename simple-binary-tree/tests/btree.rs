@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+
 use simple_binary_tree::BTreeSet;
 
 #[test]
@@ -147,8 +149,6 @@ fn test_contains() {
         true,
         "set's contains 20 after insertion."
     );
-
-    set.pretty_print();
 }
 
 #[test]
@@ -243,4 +243,32 @@ fn test_get() {
         Some(&20),
         "set's contains 20 after insertion."
     );
+}
+
+#[test]
+fn test_insert_sequential_numbers() {
+    let mut set = BTreeSet::<u32>::new();
+    for N in 0..=10 {
+        for n in 0..=N {
+            set.insert(n);
+        }
+        println!();
+        println!("insert 0 to {}", N);
+        set.pretty_print();
+    }
+}
+
+#[test]
+fn test_insert_random_numbers() {
+    // gen random numbers
+    let mut vec: Vec<u32> = (1..=50).collect();
+    let mut rng = rand::thread_rng();
+    vec.shuffle(&mut rng);
+
+    let mut set = BTreeSet::<u32>::new();
+    for v in vec {
+        set.insert(v);
+    }
+
+    set.pretty_print();
 }
