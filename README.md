@@ -15,3 +15,4 @@ https://exercism.io/my/tracks/rust
 9. [Grains](grains/src/lib.rs)
 10. [Phone Number](phone-number/src/lib.rs)
 11. [Anagram](anagram/src/lib.rs)
+12. [Pig Latin](pig-latin/src/lib.rs)
