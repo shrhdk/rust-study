@@ -35,15 +35,13 @@ fn translate_word(word: &str) -> String {
 }
 
 pub fn translate(input: &str) -> String {
-    let mut result = String::new();
-    input
-        .split_whitespace()
+    input.split_whitespace()
         .map(translate_word)
-        .for_each(|pig_latin| {
-            if !result.is_empty() {
-                result.push_str(" ");
+        .fold(String::new(), |out, word| {
+            if out.is_empty() {
+                out + &word
+            } else {
+                out + " " + &word
             }
-            result.push_str(&pig_latin);
-        });
-    result
+        })
 }
