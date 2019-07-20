@@ -35,7 +35,8 @@ fn translate_word(word: &str) -> String {
 }
 
 pub fn translate(input: &str) -> String {
-    input.split_whitespace()
+    input
+        .split_whitespace()
         .map(translate_word)
         .fold(String::new(), |out, word| {
             if out.is_empty() {

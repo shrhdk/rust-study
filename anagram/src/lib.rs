@@ -8,7 +8,8 @@ fn norm(word: &str) -> Vec<char> {
 
 pub fn anagrams_for<'a>(word: &'a str, possible_anagrams: &[&'a str]) -> HashSet<&'a str> {
     let norm_word = norm(word);
-    possible_anagrams.iter()
+    possible_anagrams
+        .iter()
         .filter(|candidate| word.to_lowercase() != candidate.to_lowercase())
         .filter(|candidate| norm(candidate) == norm_word)
         .cloned()
