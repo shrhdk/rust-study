@@ -1,5 +1,5 @@
 pub fn number(user_number: &str) -> Option<String> {
-    let mut digits: Vec<char> = user_number.chars().filter(|c| c.is_digit(10)).collect();
+    let mut digits: Vec<_> = user_number.chars().filter(|c| c.is_digit(10)).collect();
 
     if digits.len() == 11 && digits[0] == '1' {
         digits.remove(0);
