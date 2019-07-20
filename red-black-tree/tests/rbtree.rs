@@ -252,9 +252,9 @@ fn test_insert_sequential_numbers() {
         for n in 1..=max_n {
             set.insert(n);
         }
-        println!(" ");
-        println!("insert 0 to {}", max_n);
-        set.pretty_print();
+
+        eprintln!("insert 0 to {}", max_n);
+        eprintln!("{}", set);
     }
 }
 
@@ -271,5 +271,5 @@ fn test_insert_random_numbers() {
         set.insert(v);
     }
 
-    set.pretty_print();
+    eprintln!("{}", set);
 }

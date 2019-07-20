@@ -1,5 +1,7 @@
 use std::cmp::Ordering::*;
-use std::fmt::Display;
+use std::fmt::{Display, Error, Formatter};
+
+use ansi_term::Colour;
 
 use Color::*;
 
@@ -59,7 +61,7 @@ fn insert<T: Ord>(
             Equal => match node.color {
                 Red => return (dir, None),
                 Black => return (None, None),
-            }
+            },
         },
         None => {
             std::mem::replace(opt_node, Some(Box::new(new_node)));
@@ -81,7 +83,7 @@ fn insert<T: Ord>(
         _ => match opt_node.as_ref().unwrap().color {
             Red => return (dir, pattern.0),
             Black => return (None, pattern.0),
-        }
+        },
     }
 
     opt_node.as_mut().unwrap().color = Red;
@@ -146,30 +148,33 @@ impl<T: Ord> RBTreeSet<T> {
     }
 }
 
-impl<T: Display> RBTreeSet<T> {
-    pub fn pretty_print(&self) {
-        fn print_node<T: Display>(
+impl<T: Display> Display for RBTreeSet<T> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        fn fmt_node<T: Display>(
+            f: &mut Formatter,
             opt_node: &Option<Box<RBTreeNode<T>>>,
             prefix: String,
             last: bool,
-        ) {
+        ) -> Result<(), Error> {
             let prefix_current = if last { "`- " } else { "|- " };
-            print!("{}{}", prefix, prefix_current);
+            write!(f, "{}{}", prefix, prefix_current)?;
             if let Some(node) = opt_node {
-                match node.color {
-                    Red => print!("R_{}", node.value),
-                    Black => print!("B_{}", node.value),
-                }
+                let node_str = match node.color {
+                    Red => Colour::Red.paint(format!("{}", node.value)),
+                    Black => Colour::Black.paint(format!("{}", node.value)),
+                };
+                write!(f, "{}", node_str)?;
             }
-            println!();
+            writeln!(f)?;
             let prefix = prefix + if last { "   " } else { "|  " };
             if let Some(node) = opt_node {
                 if node.left.is_some() || node.right.is_some() {
-                    print_node(&node.left, prefix.to_string(), false);
-                    print_node(&node.right, prefix.to_string(), true);
+                    fmt_node(f, &node.left, prefix.to_string(), false)?;
+                    fmt_node(f, &node.right, prefix.to_string(), true)?;
                 }
             }
+            Ok(())
         }
-        print_node(&self.root, "".to_string(), true);
+        fmt_node(f, &self.root, "".to_string(), true)
     }
 }
