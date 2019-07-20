@@ -252,9 +252,8 @@ fn test_insert_sequential_numbers() {
         for n in 0..=N {
             set.insert(n);
         }
-        println!();
-        println!("insert 0 to {}", N);
-        set.pretty_print();
+        eprintln!("insert 0 to {}", N);
+        eprintln!("{}", set);
     }
 }
 
@@ -270,5 +269,5 @@ fn test_insert_random_numbers() {
         set.insert(v);
     }
 
-    set.pretty_print();
+    eprintln!("{}", set);
 }

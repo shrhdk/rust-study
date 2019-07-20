@@ -1,5 +1,5 @@
 use std::cmp::Ordering::*;
-use std::fmt::Display;
+use std::fmt::{Display, Error, Formatter};
 
 pub struct BTreeSet<T> {
     root: Option<Box<BTreeNode<T>>>,
@@ -66,27 +66,29 @@ impl<T: Ord> BTreeSet<T> {
     }
 }
 
-impl<T: Display> BTreeSet<T> {
-    pub fn pretty_print(&self) {
-        fn print_node<T: Display>(
+impl<T: Display> Display for BTreeSet<T> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        fn fmt_node<T: Display>(
+            f: &mut Formatter,
             opt_node: &Option<Box<BTreeNode<T>>>,
             prefix: String,
             last: bool,
-        ) {
+        ) -> Result<(), Error> {
             let prefix_current = if last { "`- " } else { "|- " };
-            print!("{}{}", prefix, prefix_current);
+            write!(f, "{}{}", prefix, prefix_current)?;
             if let Some(node) = opt_node {
-                print!("{}", node.value);
+                write!(f, "{}", node.value)?;
             }
-            println!();
+            writeln!(f)?;
             let prefix = prefix + if last { "   " } else { "|  " };
             if let Some(node) = opt_node {
                 if node.left.is_some() || node.right.is_some() {
-                    print_node(&node.left, prefix.to_string(), false);
-                    print_node(&node.right, prefix.to_string(), true);
+                    fmt_node(f, &node.left, prefix.to_string(), false)?;
+                    fmt_node(f, &node.right, prefix.to_string(), true)?;
                 }
             }
+            Ok(())
         }
-        print_node(&self.root, "".to_string(), true);
+        fmt_node(f, &self.root, "".to_string(), true)
     }
 }
