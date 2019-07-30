@@ -38,11 +38,6 @@ pub fn translate(input: &str) -> String {
     input
         .split_whitespace()
         .map(translate_word)
-        .fold(String::new(), |out, word| {
-            if out.is_empty() {
-                out + &word
-            } else {
-                out + " " + &word
-            }
-        })
+        .collect::<Vec<String>>()
+        .join(" ")
 }
