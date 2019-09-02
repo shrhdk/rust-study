@@ -7,11 +7,11 @@ pub struct Interpreter {
 }
 
 impl Interpreter {
-    pub fn new() -> Interpreter {
+    pub fn new() -> Self {
         let pc: usize = 0;
         let ptr: usize = 0;
         let data: Vec<u8> = vec![0; 30000];
-        Interpreter { pc, ptr, data }
+        Self { pc, ptr, data }
     }
 
     pub fn interpret<R: Read, W: Write>(&mut self, program: &[u8], input: &mut R, output: &mut W) -> Result<(), String> {
