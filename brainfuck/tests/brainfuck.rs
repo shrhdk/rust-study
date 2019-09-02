@@ -37,6 +37,30 @@ fn test_multiple() {
 }
 
 #[test]
+fn test_brackets_on_edge() {
+    let program = b"[]";
+    let input = Vec::<u8>::new();
+    let mut output = Vec::<u8>::new();
+
+    let mut interpreter = Interpreter::new();
+    let result = interpreter.interpret(program, &mut &input[..], &mut output);
+
+    assert_eq!(result, Ok(()));
+}
+
+#[test]
+fn test_brackets_on_edge2() {
+    let program = b"+++[-]";
+    let input = Vec::<u8>::new();
+    let mut output = Vec::<u8>::new();
+
+    let mut interpreter = Interpreter::new();
+    let result = interpreter.interpret(program, &mut &input[..], &mut output);
+
+    assert_eq!(result, Ok(()));
+}
+
+#[test]
 fn expand_data() {
     let mut program = vec![b'>'; 30000]; // initial data size is 30000
     program.push(b'+'); // increments address 30001
