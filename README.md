@@ -16,3 +16,4 @@ https://exercism.io/my/tracks/rust
 10. [Phone Number](phone-number/src/lib.rs)
 11. [Anagram](anagram/src/lib.rs)
 12. [Pig Latin](pig-latin/src/lib.rs)
+13. [Brainfxck](brainfuck/src/lib.rs)
