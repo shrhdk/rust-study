@@ -1,22 +1,22 @@
 use std::io::{Read, Write};
 
 pub struct Interpreter {
-    pc: usize,
+    pos: usize,
     ptr: usize,
     data: Vec<u8>,
 }
 
 impl Interpreter {
     pub fn new() -> Self {
-        let pc: usize = 0;
+        let pos: usize = 0;
         let ptr: usize = 0;
         let data: Vec<u8> = vec![0; 30000];
-        Self { pc, ptr, data }
+        Self { pos, ptr, data }
     }
 
     pub fn interpret<R: Read, W: Write>(&mut self, program: &[u8], input: &mut R, output: &mut W) -> Result<(), String> {
-        while self.pc < program.len() {
-            match program[self.pc] {
+        while self.pos < program.len() {
+            match program[self.pos] {
                 b'>' => {
                     self.ptr += 1;
                     if self.ptr == self.data.len() {
@@ -42,11 +42,11 @@ impl Interpreter {
                 b'[' if self.data[self.ptr] == 0 => {
                     let mut n = 1;
                     while n > 0 {
-                        self.pc += 1;
-                        if self.pc == program.len() {
+                        self.pos += 1;
+                        if self.pos == program.len() {
                             return Err("missing close brackets".to_string());
                         }
-                        match program[self.pc] {
+                        match program[self.pos] {
                             b'[' => n += 1,
                             b']' => n -= 1,
                             _ => { /* Ignore */ }
@@ -56,11 +56,11 @@ impl Interpreter {
                 b']' if self.data[self.ptr] != 0 => {
                     let mut n = 1;
                     while n > 0 {
-                        if self.pc == 0 {
+                        if self.pos == 0 {
                             return Err("missing open brackets".to_string());
                         }
-                        self.pc -= 1;
-                        match program[self.pc] {
+                        self.pos -= 1;
+                        match program[self.pos] {
                             b']' => n += 1,
                             b'[' => n -= 1,
                             _ => { /* Ignore */ }
@@ -69,7 +69,7 @@ impl Interpreter {
                 }
                 _ => { /* NOP */ }
             }
-            self.pc += 1;
+            self.pos += 1;
         }
         Ok(())
     }
