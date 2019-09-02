@@ -8,10 +8,7 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn new() -> Self {
-        let pos: usize = 0;
-        let ptr: usize = 0;
-        let data: Vec<u8> = vec![0; 30000];
-        Self { pos, ptr, data }
+        Self::default()
     }
 
     pub fn interpret<R: Read, W: Write>(&mut self, program: &[u8], input: &mut R, output: &mut W) -> Result<(), String> {
@@ -72,5 +69,14 @@ impl Interpreter {
             self.pos += 1;
         }
         Ok(())
+    }
+}
+
+impl Default for Interpreter {
+    fn default() -> Self {
+        let pos: usize = 0;
+        let ptr: usize = 0;
+        let data: Vec<u8> = vec![0; 30000];
+        Self { pos, ptr, data }
     }
 }
