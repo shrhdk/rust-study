@@ -1,8 +1,4 @@
-# Exercism Rust
-
-https://exercism.io/my/tracks/rust
-
-## Solutions
+# Rust Study
 
 1. [Hello World](hello-world/src/main.rs)
 2. [Leap](leap/src/main.rs)
