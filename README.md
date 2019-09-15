@@ -14,3 +14,4 @@
 12. [Pig Latin](pig-latin/src/lib.rs)
 13. [Brainfxck](brainfuck/src/lib.rs)
 14. [cowsay](cowsay/src/main.rs)
+15. [wc](wc/src/main.rs)
