@@ -1,32 +1,43 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::io::Result;
 use std::net::{TcpListener, TcpStream};
+use std::sync::Arc;
 
 use crate::http::Connection;
 
 pub mod http;
 
+pub trait Handler: Send + Sync + 'static {
+    fn handle(&self, conn: &mut Connection) -> Result<()>;
+}
+
+impl<F> Handler for F
+where
+    F: Send + Sync + Fn(&mut Connection) -> Result<()> + 'static,
+{
+    fn handle(&self, conn: &mut Connection) -> Result<()> {
+        (*self)(conn)
+    }
+}
+
 pub struct Router {
-    routes: HashMap<String, Box<dyn Fn(&mut Connection) -> Result<()>>>,
-    not_found_handler: Box<dyn Fn(&mut Connection) -> Result<()>>,
+    routes: BTreeMap<String, Arc<dyn Handler>>,
+    not_found_handler: Arc<dyn Handler>,
 }
 
 impl Router {
     pub fn new() -> Self {
         Router {
-            routes: HashMap::new(),
-            not_found_handler: Box::new(not_found_handler),
+            routes: BTreeMap::new(),
+            not_found_handler: Arc::new(not_found_handler),
         }
     }
 
-    pub fn add_route<H>(&mut self, path: &str, handler: H)
-    where
-        H: Fn(&mut Connection) -> Result<()> + 'static,
-    {
-        self.routes.insert(path.to_string(), Box::new(handler));
+    pub fn add_route<H: Handler>(&mut self, path: &str, handler: H) {
+        self.routes.insert(path.to_string(), Arc::new(handler));
     }
 
-    pub fn serve(&mut self, addr: &str) -> Result<()> {
+    pub fn listen(&mut self, addr: &str) -> Result<()> {
         let listener = TcpListener::bind(addr)?;
         for stream in listener.incoming() {
             self.handle_client(stream?)?;
@@ -39,8 +50,13 @@ impl Router {
         let handler = self
             .routes
             .get(&conn.path)
-            .unwrap_or(&self.not_found_handler);
-        handler(&mut conn)?;
+            .unwrap_or(&self.not_found_handler)
+            .clone();
+        std::thread::spawn(move || {
+            if let Err(e) = handler.handle(&mut conn) {
+                eprintln!("{}", e);
+            }
+        });
         Ok(())
     }
 }

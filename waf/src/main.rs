@@ -1,6 +1,7 @@
 use std::io;
 use std::sync::{Arc, Mutex};
 
+use waf::http::Connection;
 use waf::Router;
 
 fn main() -> io::Result<()> {
@@ -8,7 +9,7 @@ fn main() -> io::Result<()> {
 
     let mut router = Router::new();
 
-    router.add_route("/", move |conn| {
+    router.add_route("/", move |conn: &mut Connection| {
         if &conn.method != "GET" {
             conn.write_status(405, "Method Not Allowed")?;
             return Ok(());
@@ -42,5 +43,5 @@ fn main() -> io::Result<()> {
         conn.print(&body)?;
         Ok(())
     });
-    router.serve("localhost:8080")
+    router.listen("localhost:8080")
 }
