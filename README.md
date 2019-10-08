@@ -15,3 +15,4 @@
 13. [Brainfxck](brainfuck/src/lib.rs)
 14. [cowsay](cowsay/src/main.rs)
 15. [wc](wc/src/main.rs)
+16. [Web Application Framework](waf)
