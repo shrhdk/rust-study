@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 utf8reader = "0.1.0"
+
+[dev-dependencies]
+maplit = "1.0.2"
