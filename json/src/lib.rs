@@ -1,8 +1,8 @@
 extern crate utf8reader;
 
 use std::collections::HashMap;
-use std::io::Result;
 use std::io::{Error, ErrorKind, Read};
+use std::io::Result;
 use std::str::FromStr;
 
 use utf8reader::UTF8Reader;
@@ -86,67 +86,58 @@ impl<R: Read> JsonReader<R> {
     fn read_number(&mut self) -> Result<Json> {
         let mut s = String::new();
 
-        // read negative sign or first char of mantissa
-        match self.read_char()? {
-            Some('-') => s.push('-'),
-            Some(ch) if ch.is_ascii_digit() => s.push(ch),
+        // read sign
+        if let Some('-') = self.peek_char()? {
+            self.skip("-")?;
+            s.push('-');
+        }
+
+        // read integer part and fraction part
+        match self.peek_char()? {
+            Some('0') => {
+                s.push(self.read_char()?.unwrap());
+                if let Some('.') = self.peek_char()? {
+                    s.push(self.read_char()?.unwrap());
+                    self.read_digits(&mut s)?;
+                }
+            }
+            Some(ch) if ch.is_ascii_digit() => {
+                self.read_digits(&mut s)?;
+                if let Some('.') = self.peek_char()? {
+                    self.skip(".")?;
+                    s.push('.');
+                    self.read_digits(&mut s)?;
+                }
+            }
             Some(ch) => {
                 return Err(Error::new(
                     ErrorKind::InvalidInput,
-                    format!("unexpected char '{}', want '-' or digit", ch),
+                    format!("unexpected char '{}', want digit", ch),
                 ));
             }
             None => return Err(Error::new(ErrorKind::InvalidInput, "unexpected EOF")),
         }
 
-        // read mantissa
-        loop {
-            match self.peek_char()? {
-                Some(ch) if ch.is_ascii_digit() => {
-                    self.read_char()?;
-                    s.push(ch)
-                }
-                Some('e') | Some('E') => {
-                    self.read_char()?;
-                    s.push('e');
-                    break;
-                }
-                _ => match f64::from_str(&s) {
-                    Ok(number) => return Ok(Json::Number(number)),
-                    Err(_) => {
+        // read exponent part
+        match self.peek_char()? {
+            Some('e') | Some('E') => {
+                self.read_char()?; // skip e or E
+                s.push('e');
+                match self.peek_char()? {
+                    Some('-') | Some('+') => {
+                        s.push(self.read_char()?.unwrap());
+                    }
+                    Some(ch) => {
                         return Err(Error::new(
                             ErrorKind::InvalidInput,
-                            format!("invalid format number {}", &s),
+                            format!("unexpected char '{}', want '-' or '+'", ch),
                         ));
                     }
-                },
-            }
-        }
-
-        // read exponent sign
-        let exponent_sign = self.read_char()?;
-        match exponent_sign {
-            Some('-') | Some('+') => s.push(exponent_sign.unwrap()),
-            Some(ch) => {
-                return Err(Error::new(
-                    ErrorKind::InvalidInput,
-                    format!("unexpected char '{}', want '-' or '+'", ch),
-                ));
-            }
-            None => return Err(Error::new(ErrorKind::InvalidInput, "unexpected EOF")),
-        }
-
-        // read exponent digits
-        loop {
-            match self.peek_char()? {
-                Some(ch) if ch.is_ascii_digit() => {
-                    self.read_char()?;
-                    s.push(ch);
+                    None => return Err(Error::new(ErrorKind::InvalidInput, "unexpected EOF")),
                 }
-                _ => {
-                    break;
-                }
+                self.read_digits(&mut s)?;
             }
+            _ => { /* No Exponent Part */ }
         }
 
         match f64::from_str(&s) {
@@ -246,7 +237,36 @@ impl<R: Read> JsonReader<R> {
     }
 
     fn read_codepoint(&mut self) -> Result<char> {
-        // TODO(shiro): Support surrogate pair
+        let codepoint = self.read_codepoint_digits()?;
+        let codepoint = if 0xD800 <= codepoint && codepoint <= 0xDBFF {
+            let high = codepoint;
+            self.skip("\\u")?;
+            let lower = self.read_codepoint_digits()?;
+            if lower < 0xDC00 || 0xDFFF < lower {
+                return Err(Error::new(
+                    ErrorKind::InvalidInput,
+                    format!(
+                        "bad code point U+{:04}, lower surrogate is expected.",
+                        lower
+                    ),
+                ));
+            }
+            0x10000 + (high - 0xD800) * 0x400 + (lower - 0xDC00)
+        } else {
+            codepoint
+        };
+
+        if let Some(ch) = std::char::from_u32(codepoint) {
+            Ok(ch)
+        } else {
+            Err(Error::new(
+                ErrorKind::InvalidInput,
+                format!("Bad codepoint {}", codepoint),
+            ))
+        }
+    }
+
+    fn read_codepoint_digits(&mut self) -> Result<u32> {
         let mut digits = String::new();
         for _ in 0..4 {
             if let Some(ch) = self.read_char()? {
@@ -261,14 +281,28 @@ impl<R: Read> JsonReader<R> {
                 return Err(Error::new(ErrorKind::InvalidInput, "unexpected EOF"));
             }
         }
-        let codepoint = u32::from_str_radix(&digits, 16).unwrap();
-        if let Some(ch) = std::char::from_u32(codepoint) {
-            Ok(ch)
-        } else {
-            Err(Error::new(
-                ErrorKind::InvalidInput,
-                format!("Bad codepoint {}", codepoint),
-            ))
+        u32::from_str_radix(&digits, 16)
+            .map_err(|err| Error::new(ErrorKind::InvalidInput, err.to_string()))
+    }
+
+    fn read_digits(&mut self, s: &mut String) -> Result<()> {
+        match self.read_char()? {
+            Some(ch) if ch.is_ascii_digit() => s.push(ch),
+            Some(ch) => {
+                return Err(Error::new(
+                    ErrorKind::InvalidInput,
+                    format!("unexpected char '{}', want digit", ch),
+                ));
+            }
+            None => return Err(Error::new(ErrorKind::InvalidInput, "unexpected EOF")),
+        }
+        loop {
+            match self.peek_char()? {
+                Some(ch) if ch.is_ascii_digit() => {
+                    s.push(self.read_char()?.unwrap());
+                }
+                _ => return Ok(()),
+            }
         }
     }
 

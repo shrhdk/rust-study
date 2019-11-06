@@ -98,9 +98,14 @@ fn test_parse_string_with_codepoint() {
 #[test]
 fn test_parse_string_with_surrogate_pair_codepoint() {
     assert_eq!(
-        json::parse_str(r#""hello \u0001\uF980""#).unwrap(),
+        json::parse_str(r#""hello \uD83E\uDD80""#).unwrap(),
         Json::String("hello 🦀".to_string())
     );
+}
+
+#[test]
+fn test_parse_string_with_bad_surrogate_pair_codepoint() {
+    assert!(json::parse_str(r#""hello \uD83E\u0041""#).is_err());
 }
 
 #[test]
@@ -110,17 +115,89 @@ fn test_parse_string_with_unexpected_eof() {
 
 #[test]
 fn test_parse_number() {
+    assert_eq!(json::parse_str("0").unwrap(), Json::Number(0f64));
+    assert_eq!(json::parse_str("1").unwrap(), Json::Number(1f64));
     assert_eq!(json::parse_str("123").unwrap(), Json::Number(123f64));
+    assert_eq!(json::parse_str("-0").unwrap(), Json::Number(0f64));
+    assert_eq!(json::parse_str("-1").unwrap(), Json::Number(-1f64));
+    assert_eq!(json::parse_str("-123").unwrap(), Json::Number(-123f64));
 }
 
 #[test]
-fn test_parse_number_with_positive_exponent() {
-    assert_eq!(json::parse_str("123e+3").unwrap(), Json::Number(123e+3f64));
+fn test_parse_number_with_fraction() {
+    assert_eq!(json::parse_str("123.5").unwrap(), Json::Number(123.5f64));
+    assert_eq!(json::parse_str("123.25").unwrap(), Json::Number(123.25f64));
+    assert_eq!(json::parse_str("0.5").unwrap(), Json::Number(0.5f64));
+    assert_eq!(json::parse_str("0.000").unwrap(), Json::Number(0.000f64));
 }
 
 #[test]
-fn test_parse_number_with_negative_exponent() {
-    assert_eq!(json::parse_str("123e-3").unwrap(), Json::Number(123e-3f64));
+fn test_parse_number_with_fraction_and_exponent() {
+    assert_eq!(
+        json::parse_str("123.25e+2").unwrap(),
+        Json::Number(123.25e+2f64)
+    );
+    assert_eq!(
+        json::parse_str("123.25e-2").unwrap(),
+        Json::Number(123.25e-2f64)
+    );
+}
+
+#[test]
+fn test_parse_number_with_exponent() {
+    assert_eq!(json::parse_str("0e-3").unwrap(), Json::Number(0e-3f64));
+    assert_eq!(json::parse_str("0e+3").unwrap(), Json::Number(0e+3f64));
+    assert_eq!(
+        json::parse_str("123e-10").unwrap(),
+        Json::Number(123e-10f64)
+    );
+    assert_eq!(
+        json::parse_str("123e+10").unwrap(),
+        Json::Number(123e+10f64)
+    );
+    assert_eq!(
+        json::parse_str("123e-01").unwrap(),
+        Json::Number(123e-01f64)
+    );
+    assert_eq!(
+        json::parse_str("123e+01").unwrap(),
+        Json::Number(123e+01f64)
+    );
+    assert_eq!(json::parse_str("-0e-3").unwrap(), Json::Number(0e-3f64));
+    assert_eq!(json::parse_str("-0e+3").unwrap(), Json::Number(0e+3f64));
+    assert_eq!(
+        json::parse_str("-123e-10").unwrap(),
+        Json::Number(-123e-10f64)
+    );
+    assert_eq!(
+        json::parse_str("-123e+10").unwrap(),
+        Json::Number(-123e+10f64)
+    );
+    assert_eq!(
+        json::parse_str("-123e-01").unwrap(),
+        Json::Number(-123e-01f64)
+    );
+    assert_eq!(
+        json::parse_str("-123e+01").unwrap(),
+        Json::Number(-123e+01f64)
+    );
+}
+
+#[test]
+fn test_parse_bad_number() {
+    assert!(json::parse_str("01").is_err());
+    assert!(json::parse_str("0.").is_err());
+    assert!(json::parse_str("0.e-3").is_err());
+    assert!(json::parse_str("1.").is_err());
+    assert!(json::parse_str("1.e-3").is_err());
+    assert!(json::parse_str("1e3").is_err());
+    assert!(json::parse_str("-").is_err());
+    assert!(json::parse_str("-01").is_err());
+    assert!(json::parse_str("-0.").is_err());
+    assert!(json::parse_str("-0.e-3").is_err());
+    assert!(json::parse_str("-1.").is_err());
+    assert!(json::parse_str("-1.e-3").is_err());
+    assert!(json::parse_str("-1e3").is_err());
 }
 
 #[test]
