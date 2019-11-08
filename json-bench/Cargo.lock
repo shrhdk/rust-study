@@ -28,7 +28,7 @@ dependencies = [
  "json 0.1.0 (git+https://github.com/shrhdk/rust-study?rev=51bd3a4e5d2f2a67ee3540c40e54bd21d337348b)",
  "json 0.1.0 (git+https://github.com/nfukasawa/rust_study?rev=bf0c51f0bf8b3df7b1aecb897772b11313db2ac2)",
  "json-parser 0.1.0 (git+https://github.com/1-14j4z1-11/exercism_rust?rev=049f957505a25b433d04888bd124c66354ff9e2c)",
- "json-parser 0.1.0 (git+https://github.com/keshihoriuchi/exercism-rust?rev=23b62e789487cfa2962f0a3f565babdbc88c8c4d)",
+ "json-parser 0.1.0 (git+https://github.com/keshihoriuchi/exercism-rust?rev=46258c2d40a91fb3505e58256723dda92daeb80d)",
  "rustpeg-json 0.1.0 (git+https://github.com/seikichi/sandbox?rev=dc8aade9cfb7024b2c0e524db710b854cdf5e088)",
 ]
 
@@ -43,7 +43,7 @@ dependencies = [
 [[package]]
 name = "json-parser"
 version = "0.1.0"
-source = "git+https://github.com/keshihoriuchi/exercism-rust?rev=23b62e789487cfa2962f0a3f565babdbc88c8c4d#23b62e789487cfa2962f0a3f565babdbc88c8c4d"
+source = "git+https://github.com/keshihoriuchi/exercism-rust?rev=46258c2d40a91fb3505e58256723dda92daeb80d#46258c2d40a91fb3505e58256723dda92daeb80d"
 dependencies = [
  "peg 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -158,7 +158,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum json 0.1.0 (git+https://github.com/nfukasawa/rust_study?rev=bf0c51f0bf8b3df7b1aecb897772b11313db2ac2)" = "<none>"
 "checksum json 0.1.0 (git+https://github.com/shrhdk/rust-study?rev=51bd3a4e5d2f2a67ee3540c40e54bd21d337348b)" = "<none>"
 "checksum json-parser 0.1.0 (git+https://github.com/1-14j4z1-11/exercism_rust?rev=049f957505a25b433d04888bd124c66354ff9e2c)" = "<none>"
-"checksum json-parser 0.1.0 (git+https://github.com/keshihoriuchi/exercism-rust?rev=23b62e789487cfa2962f0a3f565babdbc88c8c4d)" = "<none>"
+"checksum json-parser 0.1.0 (git+https://github.com/keshihoriuchi/exercism-rust?rev=46258c2d40a91fb3505e58256723dda92daeb80d)" = "<none>"
 "checksum lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 "checksum memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "88579771288728879b57485cc7d6b07d648c9f0141eb955f8ab7f9d45394468e"
 "checksum peg 0.5.7 (registry+https://github.com/rust-lang/crates.io-index)" = "40df12dde1d836ed2a4c3bfc2799797e3abaf807d97520d28d6e3f3bf41a5f85"

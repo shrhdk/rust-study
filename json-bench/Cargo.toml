@@ -9,6 +9,6 @@ edition = "2018"
 [dev-dependencies]
 kondo = { git = "https://github.com/seikichi/sandbox", path = "/rust/rustpeg-json", package = "rustpeg-json", rev = "dc8aade9cfb7024b2c0e524db710b854cdf5e088" }
 fuka = { git = "https://github.com/nfukasawa/rust_study", path = "/json", package = "json", rev = "bf0c51f0bf8b3df7b1aecb897772b11313db2ac2" }
-horiuchi = { git = "https://github.com/keshihoriuchi/exercism-rust", path = "/json-parser", package = "json-parser", rev = "23b62e789487cfa2962f0a3f565babdbc88c8c4d" }
+horiuchi = { git = "https://github.com/keshihoriuchi/exercism-rust", path = "/json-parser", package = "json-parser", rev = "46258c2d40a91fb3505e58256723dda92daeb80d" }
 hayashi = { git = "https://github.com/1-14j4z1-11/exercism_rust", path = "/ohers/json-parser", package = "json-parser", rev = "049f957505a25b433d04888bd124c66354ff9e2c" }
 shiro = { git = "https://github.com/shrhdk/rust-study", path = "/json", package = "json", rev = "51bd3a4e5d2f2a67ee3540c40e54bd21d337348b" }

@@ -24,6 +24,11 @@ macro_rules! benchmark {
             }
 
             #[bench]
+            fn horiuchi(b: &mut Bencher) {
+                b.iter(|| horiuchi::parse($json).is_ok());
+            }
+
+            #[bench]
             fn kondo(b: &mut Bencher) {
                 b.iter(|| kondo::parse($json).is_ok());
             }
@@ -43,6 +48,8 @@ benchmark!(parse_escaped_string, r#""\"\\\/\b\f\n\r\t\u0052""#);
 benchmark!(parse_escaped_string_including_surrogate_pair, r#""\"\\\/\b\f\n\r\t\uD83E\uDD80\u0052""#);
 
 benchmark!(parse_number, "123");
+
+benchmark!(parse_number2, "-123.45678e+9");
 
 benchmark!(parse_true, "true");
 
