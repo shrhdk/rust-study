@@ -7,72 +7,70 @@ extern crate kondo;
 extern crate shiro;
 extern crate test;
 
-mod simple_string {
-    use std::str::FromStr;
+macro_rules! benchmark {
+    ($name: ident, $json: expr) => {
+        mod $name {
+            use test::Bencher;
+            use std::str::FromStr;
 
-    static JSON: &str = r#""hello""#;
+            #[bench]
+            fn fuka(b: &mut Bencher) {
+                b.iter(|| fuka::Value::from_str($json).is_ok());
+            }
 
-    #[bench]
-    fn fuka(b: &mut test::Bencher) {
-        b.iter(|| fuka::Value::from_str(JSON))
-    }
+            #[bench]
+            fn hayashi(b: &mut Bencher) {
+                b.iter(|| hayashi::parse($json).is_ok());
+            }
 
-    #[bench]
-    fn hayashi(b: &mut test::Bencher) {
-        b.iter(|| hayashi::parse(JSON))
-    }
+            #[bench]
+            fn kondo(b: &mut Bencher) {
+                b.iter(|| kondo::parse($json).is_ok());
+            }
 
-    //    #[bench]
-    //    fn horiuchi(b: &mut test::Bencher) {
-    //        b.iter(|| horiuchi::json::value(JSON))
-    //    }
-
-    #[bench]
-    fn kondo(b: &mut test::Bencher) {
-        b.iter(|| kondo::parse(JSON))
-    }
-
-    #[bench]
-    fn shiro(b: &mut test::Bencher) {
-        b.iter(|| shiro::parse_str(JSON));
-    }
+            #[bench]
+            fn shiro(b: &mut Bencher) {
+                b.iter(|| shiro::parse_str($json).is_ok());
+            }
+        }
+    };
 }
 
-mod simple_number {
-    use std::str::FromStr;
+benchmark!(parse_string, r#""hello""#);
 
-    static JSON: &str = "123";
+benchmark!(parse_escaped_string, r#""\"\\\/\b\f\n\r\t\u0052""#);
 
-    #[bench]
-    fn fuka(b: &mut test::Bencher) {
-        b.iter(|| fuka::Value::from_str(JSON))
+benchmark!(parse_escaped_string_including_surrogate_pair, r#""\"\\\/\b\f\n\r\t\uD83E\uDD80\u0052""#);
+
+benchmark!(parse_number, "123");
+
+benchmark!(parse_true, "true");
+
+benchmark!(parse_false, "false");
+
+benchmark!(parse_null, "null");
+
+benchmark!(parse_array, r#"
+    [
+        123,
+        "hello",
+        true,
+        false,
+        null
+    ]
+"#);
+
+benchmark!(parse_object, r#"
+    {
+        "number": 123,
+        "string": "hello",
+        "boolean1": true,
+        "boolean2": false,
+        "null": null
     }
+"#);
 
-    #[bench]
-    fn hayashi(b: &mut test::Bencher) {
-        b.iter(|| hayashi::parse(JSON))
-    }
-
-    //    #[bench]
-    //    fn horiuchi(b: &mut test::Bencher) {
-    //        b.iter(|| horiuchi::json::value(JSON))
-    //    }
-
-    #[bench]
-    fn kondo(b: &mut test::Bencher) {
-        b.iter(|| kondo::parse(JSON))
-    }
-
-    #[bench]
-    fn shiro(b: &mut test::Bencher) {
-        b.iter(|| shiro::parse_str(JSON));
-    }
-}
-
-mod simple_object {
-    use std::str::FromStr;
-
-    static JSON: &str = r#"
+benchmark!(parse_complex_object, r#"
     {
         "number": 123,
         "string": "hello",
@@ -87,30 +85,4 @@ mod simple_object {
             null
         ]
     }
-    "#;
-
-    #[bench]
-    fn fuka(b: &mut test::Bencher) {
-        b.iter(|| fuka::Value::from_str(JSON))
-    }
-
-    #[bench]
-    fn hayashi(b: &mut test::Bencher) {
-        b.iter(|| hayashi::parse(JSON))
-    }
-
-    //    #[bench]
-    //    fn horiuchi(b: &mut test::Bencher) {
-    //        b.iter(|| horiuchi::json::value(JSON))
-    //    }
-
-    #[bench]
-    fn kondo(b: &mut test::Bencher) {
-        b.iter(|| kondo::parse(JSON))
-    }
-
-    #[bench]
-    fn shiro(b: &mut test::Bencher) {
-        b.iter(|| shiro::parse_str(JSON));
-    }
-}
+"#);
