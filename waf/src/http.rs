@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::io::{BufRead, BufReader, Error, ErrorKind, Result, Write};
+use std::io::{BufRead, BufReader, BufWriter, Error, ErrorKind, Read, Result, Write};
 use std::net::TcpStream;
 
 pub type Headers = HashMap<String, String>;
@@ -15,74 +15,94 @@ pub const METHOD_TRACE: &str = "TRACE";
 pub const METHOD_PATCH: &str = "PATCH";
 
 pub struct Connection {
-    stream: TcpStream,
+    reader: BufReader<TcpStream>,
+    writer: BufWriter<TcpStream>,
     pub method: String,
     pub path: String,
     pub version: String,
 }
 
 impl Connection {
-    pub fn new(mut stream: TcpStream) -> Result<Self> {
-        let mut br = BufReader::new(&mut stream);
+    pub fn new(stream: TcpStream) -> Result<Self> {
+        let mut reader = BufReader::new(stream.try_clone()?);
+        let writer = BufWriter::new(stream.try_clone()?);
 
         let mut line = "".to_string();
-        br.read_line(&mut line)?;
+        reader.read_line(&mut line)?;
         let (method, path, version) = parse_request_line(&line)?;
 
         Ok(Connection {
-            stream,
+            reader,
+            writer,
             method,
             path,
             version,
         })
     }
 
-    pub fn read_headers(&mut self) -> Result<Headers> {
-        let mut headers = Headers::new();
-        let mut line = "".to_string();
-        let mut br = BufReader::new(&mut self.stream);
-        while let Ok(_) = br.read_line(&mut line) {
-            let tokens: Vec<&str> = line.split(':').collect();
-            if tokens.len() != 2 {
-                return Err(Error::new(
-                    ErrorKind::InvalidInput,
-                    format!("Invalid header {}", line),
-                ));
-            }
-            headers.insert(tokens[0].to_string(), tokens[1].to_string());
+    pub fn read_headers(&mut self) -> Result<HashMap<String, String>> {
+        let mut headers = HashMap::new();
+        while let Some((key, value)) = self.read_header()? {
+            headers.insert(key, value);
         }
         Ok(headers)
     }
 
+    pub fn read_header(&mut self) -> Result<Option<(String, String)>> {
+        let mut line = "".to_string();
+        self.reader.read_line(&mut line)?;
+        if &line == "\r\n" || &line == "\n" {
+            Ok(None)
+        } else {
+            Ok(Some(parse_header(&line)?))
+        }
+    }
+
     pub fn write_status(&mut self, code: u16, reason: &str) -> Result<()> {
-        let status_line = format!("{} {} {}\r\n", self.version, code, reason);
-        self.stream.write_all(status_line.as_bytes())
+        self.writer
+            .write_fmt(format_args!("{} {} {}\r\n", self.version, code, reason))
     }
 
-    pub fn write_header(&mut self, key: &str, value: &str) -> Result<()> {
-        self.print(key)?;
-        self.print(": ")?;
-        self.println(value)
-    }
-
-    pub fn write_headers(&mut self, headers: &Headers) -> Result<()> {
-        for (k, v) in headers {
-            self.write_header(k, v)?;
+    pub fn write_headers(&mut self, headers: &mut HashMap<String, String>) -> Result<()> {
+        for (key, value) in headers {
+            self.write_header(key, value)?;
         }
         Ok(())
     }
 
-    pub fn write_all(&mut self, data: &[u8]) -> Result<()> {
-        self.stream.write_all(data)
+    pub fn write_header(&mut self, key: &str, value: &str) -> Result<()> {
+        self.writer
+            .write_fmt(format_args!("{}: {}\r\n", key, value))
     }
 
-    pub fn print(&mut self, line: &str) -> Result<()> {
-        self.write_all(line.as_bytes())
+    pub fn finish_header(&mut self) -> Result<()> {
+        self.writer.write_all("\r\n".as_bytes())
+    }
+}
+
+impl Read for Connection {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+        self.reader.read(buf)
+    }
+}
+
+impl Write for Connection {
+    fn write(&mut self, buf: &[u8]) -> Result<usize> {
+        self.writer.write(buf)
     }
 
-    pub fn println(&mut self, line: &str) -> Result<()> {
-        self.print(line)?;
-        self.print("\r\n")
+    fn flush(&mut self) -> Result<()> {
+        self.writer.flush()
+    }
+}
+
+impl BufRead for Connection {
+    fn fill_buf(&mut self) -> Result<&[u8]> {
+        self.reader.fill_buf()
+    }
+
+    fn consume(&mut self, amt: usize) {
+        self.reader.consume(amt)
     }
 }
 
@@ -98,6 +118,20 @@ fn parse_request_line(line: &str) -> Result<(String, String, String)> {
         Err(Error::new(
             ErrorKind::InvalidInput,
             format!("failed to parse {} as HTTP Request-Line", line),
+        ))
+    }
+}
+
+fn parse_header(line: &str) -> Result<(String, String)> {
+    let key_value: Vec<&str> = line.splitn(2, ':').collect();
+    if key_value.len() == 2 {
+        let key = key_value[0].trim().to_string();
+        let value = key_value[1].trim().to_string();
+        Ok((key, value))
+    } else {
+        Err(Error::new(
+            ErrorKind::InvalidInput,
+            format!("Invalid header {}", &line),
         ))
     }
 }

@@ -1,21 +1,20 @@
 use std::io;
-use std::sync::{Arc, Mutex};
+use std::io::Write;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use waf::http::{Connection, METHOD_GET};
 use waf::Router;
 
 fn main() -> io::Result<()> {
-    let counter = Arc::new(Mutex::new(0usize));
+    let counter = AtomicUsize::new(1);
 
     let mut router = Router::new();
 
     router.add_handler(METHOD_GET, "/", move |conn: &mut Connection| {
-        let count = {
-            let mut counter = counter.lock().unwrap();
-            *counter += 1;
-            *counter
-        };
+        let _headers = conn.read_headers()?;
 
+        // Create Body
+        let count = counter.fetch_add(1, Ordering::SeqCst);
         let body = format!(
             r###"
             <!DOCTYPE html>
@@ -31,12 +30,17 @@ fn main() -> io::Result<()> {
             count
         );
 
+        // Write Header
         conn.write_status(200, "OK")?;
         conn.write_header("Content-Type", "text/html; charset=UTF-8")?;
         conn.write_header("Content-Length", &format!("{}", body.len()))?;
-        conn.println("")?;
-        conn.print(&body)?;
+        conn.finish_header()?;
+
+        // Write Body
+        conn.write_all(body.as_bytes())?;
+
         Ok(())
     });
+
     router.listen("localhost:8080")
 }
