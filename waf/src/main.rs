@@ -30,10 +30,31 @@ fn main() -> io::Result<()> {
             count
         );
 
-        // Write Header
+        // Write Headers
         conn.write_status(200, "OK")?;
         conn.write_header("Content-Type", "text/html; charset=UTF-8")?;
         conn.write_header("Content-Length", &format!("{}", body.len()))?;
+        conn.finish_header()?;
+
+        // Write Body
+        conn.write_all(body.as_bytes())?;
+
+        Ok(())
+    });
+
+    router.add_handler(METHOD_GET, "/json", |conn: &mut Connection| {
+        let _headers = conn.read_headers()?;
+
+        // Create Body
+        let body = "{\"message\":\"Hello, World!\"}\n";
+
+        // Write Headers
+        conn.write_status(200, "OK")?;
+        conn.write_header("Content-Type", "application/json; charset=UTF-8")?;
+        conn.write_header("Content-Length", &format!("{}", body.len()))?;
+        conn.write_header("Connection", "close")?;
+        conn.write_header("Server", "Example")?;
+        conn.write_date_header()?;
         conn.finish_header()?;
 
         // Write Body

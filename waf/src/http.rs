@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::io::{BufRead, BufReader, BufWriter, Error, ErrorKind, Read, Result, Write};
 use std::net::TcpStream;
 
+use chrono::Utc;
+
 pub type Headers = HashMap<String, String>;
 
 pub const METHOD_GET: &str = "GET";
@@ -73,6 +75,11 @@ impl Connection {
     pub fn write_header(&mut self, key: &str, value: &str) -> Result<()> {
         self.writer
             .write_fmt(format_args!("{}: {}\r\n", key, value))
+    }
+
+    pub fn write_date_header(&mut self) -> Result<()> {
+        let date_str = &Utc::now().format("%a, %d %m %Y %H:%M:%S GMT").to_string();
+        self.write_header("Date", date_str)
     }
 
     pub fn finish_header(&mut self) -> Result<()> {

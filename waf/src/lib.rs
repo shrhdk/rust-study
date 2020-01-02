@@ -48,13 +48,21 @@ impl Router {
     pub fn listen(&mut self, addr: &str) -> Result<()> {
         let listener = TcpListener::bind(addr)?;
         for stream in listener.incoming() {
-            self.handle_client(stream?)?;
+            if let Err(e) = stream {
+                eprintln!("{}", e);
+                continue;
+            }
+            if let Err(e) = self.handle_client(stream?) {
+                eprintln!("{}", e);
+                continue;
+            };
         }
         Ok(())
     }
 
     fn handle_client(&self, stream: TcpStream) -> Result<()> {
         let mut conn = Connection::new(stream)?;
+
         let handler = self.get_handler(&conn.method, &conn.path);
 
         std::thread::spawn(move || {
